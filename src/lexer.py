@@ -1,10 +1,52 @@
 """Лексический разбор исходного кода."""
 
+from enum import StrEnum
 from typing import NamedTuple
 
 
+class TokenKind(StrEnum):
+    INTEGER = "integer"
+    IDENTIFIER = "identifier"
+    STRING = "string"
+    CHAR = "char"
+    EOF = "eof"
+    VAR = "var"
+    FUN = "fun"
+    HANDLER = "handler"
+    IF = "if"
+    ELSE = "else"
+    WHILE = "while"
+    RETURN = "return"
+    ARR = "arr"
+    IN = "in"
+    OUT = "out"
+    PLUS = "+"
+    MINUS = "-"
+    STAR = "*"
+    SLASH = "/"
+    PERCENT = "%"
+    NOT = "!"
+    ASSIGN = "="
+    LT = "<"
+    GT = ">"
+    LPAREN = "("
+    RPAREN = ")"
+    LBRACE = "{"
+    RBRACE = "}"
+    LBRACKET = "["
+    RBRACKET = "]"
+    COMMA = ","
+    SEMICOLON = ";"
+    EQ = "=="
+    NE = "!="
+    LE = "<="
+    GE = ">="
+    AND = "&&"
+    OR = "||"
+
+
 class Token(NamedTuple):
-    kind: str
+    kind: TokenKind
     text: str
     line: int
 
@@ -105,7 +147,7 @@ def tokenize(source: str) -> list[Token]:
             start = position
             while position < len(source) and is_digit(source[position]):
                 position += 1
-            tokens.append(Token("integer", source[start:position], line))
+            tokens.append(Token(TokenKind.INTEGER, source[start:position], line))
             continue
 
         if is_letter(char) or char == "_":
@@ -117,28 +159,28 @@ def tokenize(source: str) -> list[Token]:
                 position += 1
 
             text = source[start:position]
-            kind = text if text in KEYWORDS else "identifier"
+            kind = TokenKind(text) if text in KEYWORDS else TokenKind.IDENTIFIER
             tokens.append(Token(kind, text, line))
             continue
 
         if char in "\"'":
-            kind = "string" if char == '"' else "char"
+            kind = TokenKind.STRING if char == '"' else TokenKind.CHAR
             text, position = read_literal(source, position)
             tokens.append(Token(kind, text, line))
             continue
 
         operator = source[position:position+2]
         if operator in DOUBLE_OPERATORS:
-            tokens.append(Token(operator, operator, line))
+            tokens.append(Token(TokenKind(operator), operator, line))
             position += 2
             continue
 
         if char in SINGLE_OPERATORS:
-            tokens.append(Token(char, char, line))
+            tokens.append(Token(TokenKind(char), char, line))
             position += 1
             continue
 
         raise AssertionError(f"Unexpected character at line {line}: {char!r}")
 
-    tokens.append(Token("eof", "", line))
+    tokens.append(Token(TokenKind.EOF, "", line))
     return tokens
