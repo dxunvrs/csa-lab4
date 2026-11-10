@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 
+from isa import MAX_PORT_NUMBER
 from lexer import Token, tokenize
 
 
@@ -84,7 +85,7 @@ class Parser:
     def parse_handler(self) -> Node:
         token = self.expect("handler")
         number = self.expect("integer")
-        assert 1 <= int(number.text) <= 131071, f"Line {number.line}: invalid handler number"
+        assert 1 <= int(number.text) <= MAX_PORT_NUMBER, f"Line {number.line}: invalid handler number"
         body = self.parse_block("handler")
 
         return Node("handler", number.text, [body], token.line)
@@ -212,7 +213,7 @@ class Parser:
 
     def parse_port(self) -> Token:
         port = self.expect("integer")
-        assert 1 <= int(port.text) <= 131071, f"Line {port.line}: invalid port number"
+        assert 1 <= int(port.text) <= MAX_PORT_NUMBER, f"Line {port.line}: invalid port number"
         return port
 
     def parse_output(self) -> Node:

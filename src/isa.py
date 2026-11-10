@@ -72,6 +72,10 @@ J_OPCODES = {
 }
 
 DATA_MEMORY_SIZE = 4096
+IMM_BITS = 18
+IMM_SIGN_BIT = 1 << (IMM_BITS - 1)
+IMM_MASK = (1 << IMM_BITS) - 1
+MAX_PORT_NUMBER = IMM_SIGN_BIT - 1
 
 
 def encode_r(opcode: Opcode, rd: int, rs1: int, rs2: int) -> int:
@@ -89,11 +93,11 @@ def encode_i(opcode: Opcode, rd: int, rs1: int, imm: int) -> int:
     assert opcode in I_OPCODES
     assert 0 <= rd < 16
     assert 0 <= rs1 < 16
-    assert -(1 << 17) <= imm < (1 << 17)
+    assert -IMM_SIGN_BIT <= imm < IMM_SIGN_BIT
     if opcode in BRANCH_OPCODES:
         assert imm % 4 == 0
 
-    return (opcode << 26) | (rd << 22) | (rs1 << 18) | (imm & 0x3FFFF)
+    return (opcode << 26) | (rd << 22) | (rs1 << IMM_BITS) | (imm & IMM_MASK)
 
 
 def encode_j(opcode: Opcode, address: int = 0) -> int:
@@ -110,9 +114,9 @@ def decode(word: int) -> dict[str, int]:
     """Извлекает поля инструкции из 32-битного слова."""
     assert 0 <= word < (1 << 32)
 
-    imm = word & 0x3FFFF
-    if imm & (1 << 17):
-        imm -= 1 << 18
+    imm = word & IMM_MASK
+    if imm & IMM_SIGN_BIT:
+        imm -= 1 << IMM_BITS
 
     return {
         "opcode": Opcode(word >> 26),
