@@ -103,7 +103,7 @@ def tokenize(source: str) -> list[Token]:
 
         if is_digit(char):
             start = position
-            while position < len[source] and is_digit(source[position]):
+            while position < len(source) and is_digit(source[position]):
                 position += 1
             tokens.append(Token("integer", source[start:position], line))
             continue
