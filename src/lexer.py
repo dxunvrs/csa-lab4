@@ -90,7 +90,7 @@ def tokenize(source: str) -> list[Token]:
     while position < len(source):
         char = source[position]
 
-        if char in "\t\r\n":
+        if char in " \t\r\n":
             if char == "\n":
                 line += 1
             position += 1
@@ -119,6 +119,7 @@ def tokenize(source: str) -> list[Token]:
             text = source[start:position]
             kind = text if text in KEYWORDS else "identifier"
             tokens.append(Token(kind, text, line))
+            continue
 
         if char in "\"'":
             kind = "string" if char == '"' else "char"
